@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Complex icons</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+// The following example creates complex markers to indicate beaches near
+// Sydney, NSW, Australia. Note that the anchor is set to (0,32) to correspond
+// to the base of the flagpole.
+
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 10,
+    center: {lat: -33.9, lng: 151.2}
+  });
+
+  setMarkers(map);
+}
+
+// Data for the markers consisting of a name, a LatLng and a zIndex for the
+// order in which these markers should display on top of each other.
+var beaches = [
+  ['Bondi Beach', -33.890542, 151.274856, 4, 'tudo'],
+  ['Coogee Beach', -33.923036, 151.259052, 5, 'nada'],
+  ['Cronulla Beach', -34.028249, 151.157507, 3, 'nada'],
+  ['Manly Beach', -33.80010128657071, 151.28747820854187, 2, 'algo mais'],
+  ['Maroubra Beach', -33.950198, 151.259302, 1, 'Boiola'],
+  ['Joaquina', -33.750198, 151.259302, 1, 'catariana'],
+  ['Saco', -33.950198, 151.359302, 1, 'Gostosa'],
+  ['abaís', -33.650198, 151.259302, 1, 'Jeca']
+];
+
+function pinSymbol(color) {
+    return {
+        path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
+        fillColor: color,
+        fillOpacity: 1,
+        strokeColor: '#000',
+        strokeWeight: 2,
+        scale: 1,
+   };
+}
+
+var coresarea = [];
+var areacores = [];
+var cores = ['#FF3300', '#0000FF', '#00CC00', '#CC0066', '#FFFF00', '#00FFFF', '#D2691E', '#A9A9A9', '#DAA520', '#FF69B4', '#4B0082'];
+function coral(area){
+	
+	var ncor = cores.length;
+	var res;
+	var cont;
+	var index1 = areacores.indexOf(area);
+	if(index1 > 0 ){
+		res = coresarea[index1];
+	}else{
+		areacores.push(area);
+		index1 = areacores.indexOf(area);
+		coresarea.push(cores[index1 % ncor]);
+		res = coresarea[index1];
+	}
+	return res;	
+}
+
+function setMarkers(map) {
+  // Adds markers to the map.
+
+  // Marker sizes are expressed as a Size of X,Y where the origin of the image
+  // (0,0) is located in the top left of the image.
+
+  // Origins, anchor positions and coordinates of the marker increase in the X
+  // direction to the right and in the Y direction down.
+  var image = {
+    url: 'Licença-Office.jpg',
+    // This marker is 20 pixels wide by 32 pixels high.
+    size: new google.maps.Size(20, 32),
+    // The origin for this image is (0, 0).
+    origin: new google.maps.Point(0, 0),
+    // The anchor for this image is the base of the flagpole at (0, 32).
+    anchor: new google.maps.Point(0, 32)
+  };
+  // Shapes define the clickable region of the icon. The type defines an HTML
+  // <area> element 'poly' which traces out a polygon as a series of X,Y points.
+  // The final coordinate closes the poly by connecting to the first coordinate.
+  var shape = {
+    coords: [1, 1, 1, 20, 18, 20, 18, 1],
+    type: 'poly'
+  };
+  var infowindow = new google.maps.InfoWindow();
+  for (var i = 0; i < beaches.length; i++) {
+	
+    var beach = beaches[i];
+	//alert(coral(beach[4]));
+	//alert(beach[1]);
+    var marker = new google.maps.Marker({
+      position: {lat: beach[1], lng: beach[2]},
+      map: map,
+      icon: pinSymbol(coral(beach[4])),
+      shape: shape,
+      title: beach[0] + "-" + beach[4],
+      zIndex: beach[3]
+    });
+	 google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent([
+		  'Nome: '  + beaches[i][0], 
+		  'Lat: ' + beaches[i][1],
+		  'Lon: ' + beaches[i][2],
+		  'Número: ' + beaches[i][3],
+		  'Comentário: ' + beaches[i][4],
+		  'Maker cor: ' + coral(beaches[i][4])
+		  ].join('<br>'));
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+  }
+  //alert(i + " - " + beach[0]);
+}
+
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYM5jsuV4OsHkfcOXTeFqhjkU_koOQDak&signed_in=true&callback=initMap"></script>
+  </body>
+</html>
